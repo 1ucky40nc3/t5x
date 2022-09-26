@@ -256,9 +256,9 @@ def train(
     raise ValueError(
         f'get_dataset_fn returned unsupported type {type(train_iter)}.')
 
-  input_shapes = jax.tree_map(lambda x: (data_layout.batch_size, *x.shape[1:]),
-                              train_iter.element_spec)
-  input_types = jax.tree_map(lambda x: x.dtype, train_iter.element_spec)
+  element_spec = train_iter.element_spec() if callable(train_iter.element_spec) else train_iter.element_spec
+  input_shapes = jax.tree_map(lambda x: (data_layout.batch_size, *x.shape[1:]), element_spec)
+  input_types = jax.tree_map(lambda x: x.dtype, element_spec)
 
   if use_gda:
     train_iter = utils.GDADatasetIterator(train_iter, partitioner, input_shapes)
