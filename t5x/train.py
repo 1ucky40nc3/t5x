@@ -552,11 +552,12 @@ def train(
                                            lambda idx: dummy[idx])
 
   # Construct dummy batch for compiling the model.
+  element_spec = train_iter.element_spec() if callable(train_iter.element_spec) else train_iter.element_spec
   if use_gda:
-    dummy_batch = jax.tree_map(_as_gda, train_iter.element_spec)
+    dummy_batch = jax.tree_map(_as_gda, element_spec)
   else:
     dummy_batch = jax.tree_map(lambda x: np.ones(x.shape, x.dtype),
-                               train_iter.element_spec)
+                               element_spec)
   if not isinstance(dummy_batch, Mapping):
     raise ValueError('Training loop expects batches to have type '
                      f'Mapping[str, np.ndarray] but got {type(dummy_batch)}.')
